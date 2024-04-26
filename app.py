@@ -1,7 +1,9 @@
+import spaces
+import gradio as gr
 import torch
+
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from optimum.bettertransformer import BetterTransformer
-import gradio as gr
 
 tokenizer = AutoTokenizer.from_pretrained(
     "google/madlad400-3b-mt",
@@ -15,6 +17,7 @@ model_hf = AutoModelForSeq2SeqLM.from_pretrained(
 
 model = BetterTransformer.transform(model_hf, keep_original=True)
 
+@spaces.GPU
 def translate(text):
     """
     Translates the input text from English to Hawaiian.
