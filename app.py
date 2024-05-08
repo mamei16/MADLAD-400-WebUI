@@ -50,7 +50,7 @@ def translate(text, target_language, model_name):
 
 title = "MADLAD-400 Translation"
 description = """
-Translation from English to over 400 languages based on [research](https://arxiv.org/pdf/2309.04662) by Google DeepMind and Google Research
+Translation from English to over 400 languages based on [research](https://arxiv.org/pdf/2309.04662) by Google DeepMind and Google Research. Initial inference will be slow as models load.
 """
 
 input_text = gr.Textbox(
