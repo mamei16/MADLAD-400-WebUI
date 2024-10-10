@@ -4,4 +4,3 @@ transformers
 accelerate
 sentencepiece
 tokenizers
-optimum
