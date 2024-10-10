@@ -1,3 +1,4 @@
 .ipynb_checkpoints
 *.ipynb
 gradio-env
+__pycache__
