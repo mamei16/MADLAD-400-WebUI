@@ -3,4 +3,3 @@
 *.ipynb
 gradio-env
 __pycache__
-app_v1.py
