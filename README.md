@@ -1,10 +1,10 @@
 ---
-title: MADLAD-400 Translator
+title: MADLAD-400 Translation
 emoji: 🌍
-colorFrom: green
-colorTo: yellow
+colorFrom: yellow
+colorTo: green
 sdk: gradio
-sdk_version: 5.0.1
+sdk_version: 5.25.2
 app_file: app.py
 pinned: false
 license: apache-2.0
