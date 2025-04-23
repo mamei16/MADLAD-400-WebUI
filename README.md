@@ -1,7 +1,7 @@
 ---
 title: MADLAD-400 Translation
 emoji: 🌍
-colorFrom: yellow
+colorFrom: blue
 colorTo: green
 sdk: gradio
 sdk_version: 5.25.2
