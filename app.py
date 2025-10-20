@@ -5,7 +5,6 @@ The user will receive the translated text.
 """
 
 import gradio as gr
-import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import ctranslate2
 import regex
@@ -13,7 +12,6 @@ import regex
 from LangMap.langid_mapping import langid_to_language
 
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 MODEL_DIR = "madlad400-10b-mt-ct2-int8_float16/"
 
