@@ -64,7 +64,7 @@ def translate(text: str, target_language_name: str) -> str:
             input_tokens = TOKENIZER_10B_MT.tokenize(text_input)
 
             results = translator.translate_batch([input_tokens], beam_size=1,
-                                                no_repeat_ngram_size=1, return_scores=False,
+                                                return_scores=False,
                                                 batch_type="tokens")
             output_tokens = results[0].hypotheses[0]
             decoded_text = TOKENIZER_10B_MT.decode(TOKENIZER_10B_MT.convert_tokens_to_ids(output_tokens))
