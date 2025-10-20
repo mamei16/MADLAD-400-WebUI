@@ -1,5 +1,8 @@
 <img width="2060" height="807" alt="Image" src="https://github.com/user-attachments/assets/8051f60e-47f9-40f5-964b-1a59a6f70f2d" />
 
+### Features
+This app automatically splits longer texts into paragraphs and sentences before translating, thus overcoming the short maximum text length of the MADLAD-400 models (at least in case of languages using the Latin alphabet).
+
 ### How to run
 1. Install the requirements
 2. Download a converted Ctranslate2 version of a madlad400 model and all related files, for example from: https://huggingface.co/SoybeanMilk/madlad400-10b-mt-ct2-int8_float16/tree/main
