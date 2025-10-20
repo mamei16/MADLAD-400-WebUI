@@ -5,18 +5,23 @@ The user will receive the translated text.
 """
 
 import gradio as gr
-import spaces
 import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import ctranslate2
+import regex
+
 from LangMap.langid_mapping import langid_to_language
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+MODEL_DIR = "madlad400-10b-mt-ct2-int8_float16/"
+
 # Initialize the tokenizer
-TOKENIZER_3B_MT = AutoTokenizer.from_pretrained("google/madlad400-3b-mt", use_fast=True)
+TOKENIZER_10B_MT = AutoTokenizer.from_pretrained("google/madlad400-10b-mt", use_fast=True)
 
 # Retrieve the language codes
-LANGUAGE_CODES = [token for token in TOKENIZER_3B_MT.get_vocab().keys() if token in langid_to_language.keys()]
+LANGUAGE_CODES = [token for token in TOKENIZER_10B_MT.get_vocab().keys() if token in langid_to_language.keys()]
 
 # Mapping language codes to human readable language names
 LANGUAGE_MAP = {k: v for k, v in langid_to_language.items() if k in LANGUAGE_CODES}
@@ -27,36 +32,11 @@ NAME_TO_CODE_MAP = {name: code for code, name in LANGUAGE_MAP.items()}
 # Extract the language names for the dropdown in the Gradio interface
 LANGUAGE_NAMES = list(LANGUAGE_MAP.values())
 
-# Model choices
-MODEL_CHOICES = [
-    "google/madlad400-3b-mt", 
-    "google/madlad400-7b-mt", 
-    "google/madlad400-10b-mt", 
-    "google/madlad400-7b-mt-bt"
-]
 
-MODEL_RESOURCES = {}
+translator = ctranslate2.Translator(MODEL_DIR, "cuda")
 
-def load_tokenizer_model(model_name: str):
-    """
-    Load tokenizer and model for a chosen model name.
 
-    Args:
-        model_name (str): The name of the model to load.
-
-    Returns:
-        tuple: The tokenizer and model for the specified model.
-    """
-    if model_name not in MODEL_RESOURCES:
-        # Load tokenizer and model for the first time
-        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
-        model = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=torch.float16)
-        model.to(DEVICE)
-        MODEL_RESOURCES[model_name] = (tokenizer, model)
-    return MODEL_RESOURCES[model_name]
-
-@spaces.GPU
-def translate(text: str, target_language_name: str, model_name: str) -> str:
+def translate(text: str, target_language_name: str) -> str:
     """
     Translate the input text from English to another language.
 
@@ -74,16 +54,30 @@ def translate(text: str, target_language_name: str, model_name: str) -> str:
     if target_language_code is None:
         raise ValueError(f"Unsupported language: {target_language_name}")
     
-    # Load tokenizer and model if not already loaded
-    tokenizer, model = load_tokenizer_model(model_name)
-    
-    text = target_language_code + text
-    input_ids = tokenizer(text, return_tensors="pt").input_ids.to(DEVICE)
-    
-    outputs = model.generate(input_ids=input_ids, max_new_tokens=128000)
-    text_translated = tokenizer.batch_decode(outputs, skip_special_tokens=True)
+    text_output = ""
+    for paragraph in text.split("\n"):
+        for sentence in regex.split("\.(?= [A-Z]|\n)", paragraph):
 
-    return text_translated[0]
+            sentence = sentence.strip()
+            if sentence == "":
+                continue
+
+            text_input = f"{target_language_code} {sentence}"
+            input_tokens = TOKENIZER_10B_MT.tokenize(text_input)
+
+            results = translator.translate_batch([input_tokens], beam_size=1,
+                                                no_repeat_ngram_size=1, return_scores=False,
+                                                batch_type="tokens")
+            output_tokens = results[0].hypotheses[0]
+            decoded_text = TOKENIZER_10B_MT.decode(TOKENIZER_10B_MT.convert_tokens_to_ids(output_tokens))
+            if text_output.endswith("\n"):
+                text_output += decoded_text
+            else:
+                if not text_output.endswith('.') :
+                    text_output += "."
+                text_output += " " + decoded_text
+            yield text_output.lstrip(" .")
+        text_output += "\n"
 
 TITLE = "MADLAD-400 Translation"
 DESCRIPTION = """
@@ -99,14 +93,8 @@ input_text = gr.Textbox(
 
 target_language = gr.Dropdown(
     choices=LANGUAGE_NAMES, # Use language names instead of codes
-    value="Hawaiian", # Default human readable language name
+    value="English", # Default human readable language name
     label="Target language"
-)
-
-model_choice = gr.Dropdown(
-    choices=MODEL_CHOICES, 
-    value="google/madlad400-3b-mt", 
-    label="Model"
 )
 
 output_text = gr.Textbox(label="Translation")
@@ -114,11 +102,12 @@ output_text = gr.Textbox(label="Translation")
 # Define the Gradio interface
 demo = gr.Interface(
     fn=translate,
-    inputs=[input_text, target_language, model_choice],
+    inputs=[input_text, target_language],
     outputs=output_text,
     title=TITLE,
-    description=DESCRIPTION
+    description=DESCRIPTION,
+    analytics_enabled=False
 )
 
 # Launch the Gradio interface
-demo.launch()
+demo.launch(inbrowser=True)
