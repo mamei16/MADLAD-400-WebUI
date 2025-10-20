@@ -12,3 +12,6 @@ I'm not sure if all MADLAD models share the same tokenizer, so if you use the 7B
 -TOKENIZER_10B_MT = AutoTokenizer.from_pretrained("google/madlad400-10b-mt", use_fast=True)
 +TOKENIZER_10B_MT = AutoTokenizer.from_pretrained("google/madlad400-3b-mt", use_fast=True)
 ```
+
+### VRAM Requirements
+If you run an 8-bit quantized version of the 10B model (such as the one linked above), it can be run with 12GB of VRAM.
