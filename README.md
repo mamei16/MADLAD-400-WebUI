@@ -1,4 +1,4 @@
-<img width="2060" height="807" alt="Image" src="https://github.com/user-attachments/assets/8051f60e-47f9-40f5-964b-1a59a6f70f2d" />
+<img width="2060" height="522" alt="Image" src="https://github.com/user-attachments/assets/650baa55-341c-4717-9bb2-508716c2543a" />
 
 ### Features
 This app automatically splits longer texts into paragraphs and sentences before translating, thus overcoming the short maximum text length of the MADLAD-400 models (at least in case of languages using the Latin alphabet).
