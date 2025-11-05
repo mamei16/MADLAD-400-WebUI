@@ -34,7 +34,27 @@ LANGUAGE_NAMES = list(LANGUAGE_MAP.values())
 translator = ctranslate2.Translator(MODEL_DIR, "cuda")
 
 
-def translate(text: str, target_language_name: str) -> str:
+PUNCT_SPLIT_PAT = regex.compile(
+    r"(?:"
+    r"\.(?=\s\p{Lu})"   # Latin/Cyrillic/Greek/Armenian: period + space + uppercase
+    r"|۔(?=\s\p{Lu})"   # Arabic script has no case, but if mixed with Latin, allow uppercase
+    r"|।"               # Devanagari danda
+    r"|॥"               # Devanagari double danda
+    r"|。"               # Chinese/Japanese full stop
+    r"|።"                # Ethiopic
+    r"|།"               # Tibetan shad
+    r"|༎"               # Tibetan double shad
+    r"|။"               # Burmese
+    r"|។"               # Khmer
+    r"|ໆ"               # Lao
+    r"|᠃"               # Mongolian
+    r"|෴"               # Sinhala kundaliya
+    r")"
+)
+
+
+
+def translate(text: str, target_language_name: str, add_explicit_eos: bool) -> str:
     """
     Translate the input text from English to another language.
 
@@ -54,7 +74,12 @@ def translate(text: str, target_language_name: str) -> str:
     
     text_output = ""
     for paragraph in text.split("\n"):
-        for sentence in regex.split("\.(?= [A-Z]|\n)", paragraph):
+        sentences = PUNCT_SPLIT_PAT.split(paragraph)
+
+        if len(sentences) == 1 and add_explicit_eos:
+            sentences[0] += '</s>'
+
+        for sentence in sentences:
 
             sentence = sentence.strip()
             if sentence == "":
@@ -68,6 +93,7 @@ def translate(text: str, target_language_name: str) -> str:
                                                 batch_type="tokens")
             output_tokens = results[0].hypotheses[0]
             decoded_text = TOKENIZER_10B_MT.decode(TOKENIZER_10B_MT.convert_tokens_to_ids(output_tokens))
+
             if text_output.endswith("\n"):
                 text_output += decoded_text
             else:
@@ -89,18 +115,22 @@ input_text = gr.Textbox(
     placeholder="Enter text here"
 )
 
+
 target_language = gr.Dropdown(
     choices=LANGUAGE_NAMES, # Use language names instead of codes
     value="English", # Default human readable language name
     label="Target language"
 )
+add_explicit_eos = gr.Checkbox(label="Append EOS-token to short sequences",
+                               info="This reduces word repetitions for, e.g., single words or titles.",
+                               value=False)
 
 output_text = gr.Textbox(label="Translation")
 
 # Define the Gradio interface
 demo = gr.Interface(
     fn=translate,
-    inputs=[input_text, target_language],
+    inputs=[input_text, target_language, add_explicit_eos],
     outputs=output_text,
     title=TITLE,
     description=DESCRIPTION,
