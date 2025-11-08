@@ -36,25 +36,49 @@ translator = ctranslate2.Translator(MODEL_DIR, "cuda")
 
 PUNCT_SPLIT_PAT = regex.compile(
     r"(?:"
-    r"\.(?=\s\p{Lu})"   # Latin/Cyrillic/Greek/Armenian: period + space + uppercase
-    r"|۔(?=\s\p{Lu})"   # Arabic script has no case, but if mixed with Latin, allow uppercase
-    r"|।"               # Devanagari danda
-    r"|॥"               # Devanagari double danda
-    r"|。"               # Chinese/Japanese full stop
-    r"|።"                # Ethiopic
-    r"|།"               # Tibetan shad
-    r"|༎"               # Tibetan double shad
-    r"|။"               # Burmese
-    r"|។"               # Khmer
-    r"|ໆ"               # Lao
-    r"|᠃"               # Mongolian
-    r"|෴"               # Sinhala kundaliya
+    r"(\.(?=\s\p{Lu}))"   # Latin/Cyrillic/Greek/Armenian: period + space + uppercase
+    r"|(۔(?=\s\p{Lu}))"   # Arabic script has no case, but if mixed with Latin, allow uppercase
+    r"|(।)"               # Devanagari danda
+    r"|(॥)"               # Devanagari double danda
+    r"|(。)"               # Chinese/Japanese full stop
+    r"|(።)"                # Ethiopic
+    r"|(།)"               # Tibetan shad
+    r"|(༎)"               # Tibetan double shad
+    r"|(။)"               # Burmese
+    r"|(។)"               # Khmer
+    r"|(ໆ)"               # Lao
+    r"|(᠃)"               # Mongolian
+    r"|(෴)"               # Sinhala kundaliya
+    # --- Colons used in natural language ---
+    r"|(:)"               # Basic colon
+    r"|(：)"              # Fullwidth colon
+    r"|(﹕)"              # Small colon
+    r"|(︰)"              # Vertical colon
     r")"
 )
 
+PUNCT_CHARS = [".", "۔",
+                   "।"
+                   "॥",
+                   "。",
+                   "።",
+                   "།",
+                   "༎",
+                   "။",
+                   "។",
+                   "ໆ",
+                   "᠃",
+                   "෴",
+                   ":",
+                   "：",
+                   "﹕",
+                   "︰"]
+
+PUNCT_CHAR_DICT = dict.fromkeys(PUNCT_CHARS)
 
 
-def translate(text: str, target_language_name: str, add_explicit_eos: bool) -> str:
+
+def translate(text: str, target_language_name: str) -> str:
     """
     Translate the input text from English to another language.
 
@@ -74,10 +98,7 @@ def translate(text: str, target_language_name: str, add_explicit_eos: bool) -> s
     
     text_output = ""
     for paragraph in text.split("\n"):
-        sentences = PUNCT_SPLIT_PAT.split(paragraph)
-
-        if len(sentences) == 1 and add_explicit_eos:
-            sentences[0] += '</s>'
+        sentences = filter(None, PUNCT_SPLIT_PAT.split(paragraph))
 
         for sentence in sentences:
 
@@ -85,8 +106,12 @@ def translate(text: str, target_language_name: str, add_explicit_eos: bool) -> s
             if sentence == "":
                 continue
 
+            if sentence in PUNCT_CHAR_DICT:
+                text_output += sentence
+                continue
+
             text_input = f"{target_language_code} {sentence}"
-            input_tokens = TOKENIZER_10B_MT.tokenize(text_input)
+            input_tokens = TOKENIZER_10B_MT.tokenize(text_input, add_special_tokens=True)
 
             results = translator.translate_batch([input_tokens], beam_size=1,
                                                 return_scores=False,
@@ -97,8 +122,8 @@ def translate(text: str, target_language_name: str, add_explicit_eos: bool) -> s
             if text_output.endswith("\n"):
                 text_output += decoded_text
             else:
-                if not text_output.endswith('.') :
-                    text_output += "."
+                #if not text_output.endswith('.') :
+                #    text_output += "."
                 text_output += " " + decoded_text
             yield text_output.lstrip(" .")
         text_output += "\n"
@@ -121,16 +146,13 @@ target_language = gr.Dropdown(
     value="English", # Default human readable language name
     label="Target language"
 )
-add_explicit_eos = gr.Checkbox(label="Append EOS-token to short sequences",
-                               info="This reduces word repetitions for, e.g., single words or titles.",
-                               value=False)
 
 output_text = gr.Textbox(label="Translation")
 
 # Define the Gradio interface
 demo = gr.Interface(
     fn=translate,
-    inputs=[input_text, target_language, add_explicit_eos],
+    inputs=[input_text, target_language],
     outputs=output_text,
     title=TITLE,
     description=DESCRIPTION,
