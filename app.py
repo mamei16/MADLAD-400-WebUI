@@ -122,8 +122,6 @@ def translate(text: str, target_language_name: str) -> str:
             if text_output.endswith("\n"):
                 text_output += decoded_text
             else:
-                #if not text_output.endswith('.') :
-                #    text_output += "."
                 text_output += " " + decoded_text
             yield text_output.lstrip(" .")
         text_output += "\n"
