@@ -123,7 +123,7 @@ def translate(text: str, target_language_name: str) -> str:
                 text_output += decoded_text
             else:
                 text_output += " " + decoded_text
-            yield text_output.lstrip(" .")
+            yield text_output
         text_output += "\n"
 
 TITLE = "MADLAD-400 Translation"
