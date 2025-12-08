@@ -14,17 +14,6 @@ from llama_cpp_server import LlamaServer
 
 
 def translate(text: str, target_language_name: str) -> str:
-    """
-    Translate the input text from English to another language.
-
-    Args:
-        text (str): The input text to be translated.
-        target_language_name (str): The human readable target language name.
-        model_name (str): The model name for translation.
-
-    Returns:
-        str: The translated text.
-    """
     # Convert the selected language name back to its corresponding language code
     target_language_code = NAME_TO_CODE_MAP.get(target_language_name)
 

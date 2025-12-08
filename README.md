@@ -7,8 +7,8 @@ This app automatically splits longer texts into paragraphs and sentences before 
 
 ### How to run
 1. Install https://github.com/mamei16/llama-cpp-binaries (This installs [a fork](https://github.com/fairydreaming/llama.cpp/tree/t5-server) of llama.cpp, which adds support for madlad models to the llama-server.)
-1. Install the other requirements
-2. Download a GGUF version of a madlad400 model, for example from the official repo: https://huggingface.co/google/madlad400-10b-mt/blob/main/model-q6k.gguf
+2. Install the other requirements
+3. Download a GGUF version of a madlad400 model, for example from the official repo: https://huggingface.co/google/madlad400-10b-mt/blob/main/model-q6k.gguf
 4. Launch the app with: `python app.py <path_to_your_gguf>`
 
 
