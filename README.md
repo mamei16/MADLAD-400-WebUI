@@ -6,7 +6,7 @@ This app automatically splits longer texts into paragraphs and sentences before 
 
 
 ### How to run
-1. Install https://github.com/mamei16/llama-cpp-binaries (This installs [a fork](https://github.com/fairydreaming/llama.cpp/tree/t5-server) of llama.cpp, which adds support for madlad models to the llama-server.)
+1. Install https://github.com/mamei16/llama-cpp-binaries (This will install [a fork](https://github.com/fairydreaming/llama.cpp/tree/t5-server) of llama.cpp, which adds support for madlad models to the llama-server.)
 2. Install the other requirements
 3. Download a GGUF version of a madlad400 model. Note that GGUF models from the [official repo](huggingface.co/google/madlad400-10b-mt/blob/main/model-q6k.gguf) do **not** work. Models that are confirmed to work:
 	- https://huggingface.co/thirteenbit/madlad400-10b-mt-gguf
@@ -15,4 +15,4 @@ This app automatically splits longer texts into paragraphs and sentences before 
 
 
 ### VRAM Requirements
-If you run an 8-bit quantized version of the 10B model, it can be run with 11GB of VRAM.The Q8_0 version of the 3B model can be run with 6GB of VRAM.
+If you run an 8-bit quantized version of the 10B model, it can be run with 11GB of VRAM. The Q8_0 version of the 3B model can be run with 6GB of VRAM.
