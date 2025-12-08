@@ -50,7 +50,7 @@ if __name__ == "__main__":
         print("Usage:\npython app.py <path_to_gguf>")
         exit(0)
 
-    server = LlamaServer("madlad-400-10b-mt-q6_k.gguf")
+    server = LlamaServer(sys.argv[1])
     tokenizer = Tokenizer.from_pretrained("google/madlad400-10b-mt")
 
     LANGUAGE_CODES = [token for token in tokenizer.get_vocab().keys() if token in langid_to_language.keys()]
