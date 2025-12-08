@@ -1,4 +1,4 @@
 tokenizers>=0.20.3
-gradio
+gradio==5.49.1
 regex
 requests
