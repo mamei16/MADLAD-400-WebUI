@@ -1,8 +1,4 @@
-torch
-transformers>=4.51.1
-accelerate>=1.6.0
-sentencepiece>=0.2.0
 tokenizers>=0.20.3
-gradio
-ctranslate2
+gradio==5.49.1
 regex
+requests
