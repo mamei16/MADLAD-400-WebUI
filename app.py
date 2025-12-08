@@ -125,7 +125,10 @@ if __name__ == "__main__":
         label="Target language"
     )
 
-    output_text = gr.Textbox(label="Translation", show_copy_button=True, show_label=True)
+    output_text = gr.Textbox(label="Translation",
+                             show_copy_button=True,
+                             show_label=True,
+                             lines=3)
 
     # Define the Gradio interface
     demo = gr.Interface(
